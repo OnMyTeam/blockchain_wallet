@@ -1,0 +1,26 @@
+{
+  "name": "wallet-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "walletapi.js",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.3.2",
+    "beefy": "^2.1.8",
+    "body-parser": "^1.19.0",
+    "browserify": "^17.0.0",
+    "eth-lightwallet": "^4.0.0",
+    "ethereumjs-tx": "^2.1.2",
+    "ethereumjs-wallet": "^1.0.1",
+    "ethers": "^5.4.7",
+    "express": "^4.17.1",
+    "keythereum": "^1.2.0",
+    "truffle-privatekey-provider": "^1.5.0",
+    "web3": "^1.5.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
