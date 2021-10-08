@@ -14,10 +14,16 @@
     "ethers": "^5.4.7",
     "express": "^4.17.1",
     "keythereum": "^1.2.0",
+    "mysql": "^2.18.1",
     "truffle-privatekey-provider": "^1.5.0",
     "web3": "^1.5.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "body-parser": "^1.19.0",
+    "ejs": "^3.0.1",
+    "escape-string-regexp": "^2.0.0",
+    "express": "^4.17.1"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

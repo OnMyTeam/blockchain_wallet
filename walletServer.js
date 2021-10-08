@@ -1,4 +1,5 @@
 const express = require('express');
+const db_config = require(__dirname+'/src/public/js/database.js');
 const fs = require('fs');
 const ethers = require('ethers');
 const keythereum = require('keythereum');
@@ -9,78 +10,50 @@ const { privateKeyToAddress } = require('keythereum');
 const { entropyToMnemonic, randomBytes, HDNode } = require('ethers/lib/utils');
 let web3 = new Web3(new Web3.providers.HttpProvider('https://ropsten.infura.io/v3/6d0db331b03946feb41e4bfad99423c4'))
 const Wallet = require("ethereumjs-wallet").default;
-const { json } = require('body-parser');
+// const { json } = require('body-parser');
 
 const app = express();
-
+var bodyParser = require('body-parser');
+app.use(express.static(__dirname + '/src/public'));
+app.set('view engine','ejs');
+app.set('views','./src/views');
+app.use(bodyParser.urlencoded({ extended: false}))
 app.set('port', process.env.PORT || 3001 );
-
-app.use(express.static('front'))
+// app.use(express.static('front'))
 app.use(express.json());
-app.use(express.urlencoded({extended:false}));
+var conn = db_config.init();
+
+  
+
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, "/front/front.html"));
+    // res.sendFile(path.join(__dirname, "/src/"));
+    res.render('index');
 });
 
-const users = [];
-let i = 0;
+app.post('/create_wallet', (req, res) => {
 
-app.post('/user', (req, res) => {
-    // console.log('aa');
-    // console.log(req.body.pw);
+    const id = req.body.id;
+    const mnemonic = req.body.mnemonic;
+    const password = req.body.password;
 
-    // const mnemonic = req.body.mnemonic;
-    // const password = 'abcde';
-    // // const mnemonic = wallet.keystore.generateRandomSeed();
-
-    // try {
-    //     wallet.keystore.createVault(
-    //         {
-    //             password: password,
-    //             seedPhrase: mnemonic,
-    //             hdPathString: "m/0'/0'/0'"
-    //         },
-    //         function (err, ks) {
-    //             ks.keyFromPassword(password, function (err, pwDerivedKey) {
-    //                 ks.generateNewAddress(pwDerivedKey, 1);
-
-    //                 const address = (ks.getAddresses()).toString();
-    //                 let keystore = ks.serialize();
-
-    //                 users.account = address;
-
-    //                 mkdir("./keyfiles")
-
-    //                 fs.writeFile(`./keyfiles/${address}keystore.json`, keystore, function(err,data) {
-    //                     if(err)
-    //                     res.status(999).json({code:999, message:"실패"})
-    //                     else
-    //                     res.status(201).json({code:1, message: "성공"})
-    //                 });
-    //             });
-    //         }
-    //     );
-    // } catch (exception) {
-    //     console.log("Newwallet ==>>>" + exception);
-    // }
-
-    console.log("a");
-
-    const mnemonic = entropyToMnemonic(randomBytes(16));
+    console.log("mnemonic: ",mnemonic);
+    console.log("password: ",password);
 
     const wallet = ethers.Wallet.fromMnemonic(mnemonic);
 
     const privateKey = wallet.privateKey.substring(2);
-    console.log(privateKey);
-    const password = "tmax1234"
+    
+    
 
     const pk = new Buffer.from(privateKey, "hex");
 
-    console.log(pk);
+    
 
     const account = Wallet.fromPrivateKey(pk);
-    const publicKey = account.getPublicKeyString();
+    console.log(account);
+
+    const address = account.getAddressString()
 
     const keyStoreFilename = account.getV3Filename();
 
@@ -88,27 +61,49 @@ app.post('/user', (req, res) => {
 
     account.toV3('password').then(function (data) {
         console.log("성공"); 
-        console.log(data);     
+        console.log(data);
         const jsonContent = JSON.stringify(data);
-        console.log(jsonContent);  
+        
 
         mkdir("./keyfiles");
+        var file_path = `./keyfiles/${keyStoreFilename}`;
+        fs.writeFile(file_path, jsonContent, function (err, dara) {
+            if(err) {
+                res.status(999).send("실패")                
+            }
+            else {
+                var id_index;
+                // id별 index값 불러오기
+                var sql = 'SELECT  id_index FROM walletdb.user';
+                    sql += ' where id = \''+id+'\' order by id_index desc limit 1';
+                    
+                conn.query(sql, function(err,result) {
+                    if(err) console.log('query is not excuted. insert fail...\n' + err);
+                    else {
+                        id_index = result[0].id_index;                        
+                        var sql = 'INSERT INTO user(id, id_index, pwd, address, file_path)'
+                        sql += ' VALUES(?, ?, ?, ?, ?)';
+                        var params = ['sangiki82', id_index+1, password, address, file_path];
+                        conn.query(sql, params, function(err) {
+                            if(err) console.log('query is not excuted. insert fail...\n' + err);
+                            else res.status(200).json({response: 200});
+                        });                            
+                    }
+                    
+                });                
+                    
+            
+                
 
-        fs.writeFile(`./keyfiles/${keyStoreFilename}`, jsonContent, function (err, dara) {
-            if(err) res.status(999).send("실패")
-            else res.status(201).send("성공")
+            }
         });
     });
 
-    users[i] = new Object;
 
-    users[i].address = account.getAddressString();
-    users[i].keyfileName = keyStoreFilename;
-    i++;
 
-    console.log(`hello: ${users[i]}`);
+    
 
-    return users;
+    
 
 });
 
@@ -123,13 +118,10 @@ app.get('/users', (req, res) => {
 app.post('/mnemonic', (req,res) => {
 
     // let mnemonic = wallet.keystore.generateRandomSeed();
-
+    
     let mnemonic = entropyToMnemonic(ethers.utils.randomBytes(16));
-
-    console.log('qqq');
-    console.log(mnemonic);
-
-    res.send(mnemonic);
+    res.status(200).json({response: 200, mnemonic:mnemonic});
+    
 });
 
 app.get('/balance', async (req, res) => {
@@ -261,3 +253,18 @@ function mkdir( dirPath ) {
         fs.mkdirSync( dirPath, { recursive: true } );
     }
 }
+
+
+
+module.exports = {
+    "server": {
+      "baseDir": ["../src"],
+      "routes": {
+        "/node_modules": "node_modules"
+      },
+      middleware: {
+        1: app,
+      },
+    },
+    port: 3000,
+  };
