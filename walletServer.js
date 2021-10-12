@@ -80,10 +80,17 @@ app.post('/create_wallet', (req, res) => {
                 conn.query(sql, function(err,result) {
                     if(err) console.log('query is not excuted. insert fail...\n' + err);
                     else {
-                        id_index = result[0].id_index;                        
+                        console.log("result:",result);
+                        if (result.length == 0){
+                            id_index = 0
+                        }else{
+                            id_index = result[0].id_index + 1;
+                        }
+                        
+                        
                         var sql = 'INSERT INTO user(id, id_index, pwd, address, file_path)'
                         sql += ' VALUES(?, ?, ?, ?, ?)';
-                        var params = ['sangiki82', id_index+1, password, address, file_path];
+                        var params = ['sangiki82', id_index, password, address, file_path];
                         conn.query(sql, params, function(err) {
                             if(err) console.log('query is not excuted. insert fail...\n' + err);
                             else res.status(200).json({response: 200});
@@ -105,6 +112,64 @@ app.post('/create_wallet', (req, res) => {
 
     
 
+});
+app.get('/accountlist', (req, res) => {
+    const id = req.query.id;
+    console.log(id);
+    var sql = 'SELECT  id, id_index, address, file_path FROM walletdb.user';
+    sql += ' where id = \''+id+'\' order by id_index';
+
+    conn.query(sql, function(err,result) {
+        if(err) console.log('query is not excuted. insert fail...\n' + err);
+        else {
+            
+            res.json(result);
+        }
+        
+    }); 
+    
+});
+
+app.post('/remove', (req, res) => {
+    const id = req.body.id;
+    const id_index = req.body.id_index;
+    console.log(id);
+    console.log(id_index);
+    var sql = 'SELECT  file_path FROM walletdb.user';
+    sql += ' where id = \''+id+'\' and id_index = '+id_index;
+
+    conn.query(sql, function(err,result) {
+        if(err) console.log('query is not excuted. insert fail...\n' + err);
+        else {
+            const flle_path = result[0].file_path;
+            console.log(flle_path);
+
+            var sql = 'delete FROM walletdb.user';
+            sql += ' where id = \''+id+'\' and id_index = '+id_index;
+
+            conn.query(sql, function(err, result) {
+                if(err) console.log('query is not excuted. insert fail...\n' + err);
+                else {
+
+                    if (result.affectedRows == 1){
+                        fs.unlink(flle_path, function(err){
+                            if(err) {
+                              console.log("Error : ", err)
+                            }
+                          })
+                        res.status(200).json({response: 200})   
+                    }
+                    else{
+                        res.status(400).json({response: 400})   
+                    }
+                    
+                }
+            });                 
+            
+        }
+        
+    }); 
+    
 });
 
 app.get('/users', (req, res) => {

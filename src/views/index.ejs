@@ -55,92 +55,34 @@
                         </table>
                         <hr>
                     </div>
-                    <div class="cart_totals" id="itemRegister" style="display: none;">
-                        <h2> <i class="fa fa-reorder"></i> Register Item </h2>
-                        <table cellspacing="0">
-                            <tbody>
-                                <tr class="cart-subtotal">
-                                    <th style="width:87%"> <input type="text" class="form-control is-valid"
-                                            id="ItemName" placeholder="Enter Item Name..." min="0"></th>
-                                    <td rowspan="2"><button class="add_to_item_button" href="#" rel="nofollow"
-                                            id="register">Register<br></button></td>
-                                </tr>
-                                <tr class="shipping">
-                                    <th> <input type="number" class="form-control is-valid" id="ItemCost"
-                                            placeholder="Enter Item Cost..." min="0"></th>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="cart_totals" id="itemRegisterList" style="display: none;">
-                        <h2><i class="fa fa-reorder"></i> Itemlist</h2>
+
+                    <div class="cart_totals" id="account_list">
+                        <h2><i class="fa fa-reorder"></i> Account_list</h2>
                         <table cellspacing="0" class="shop_table cart">
                             <thead>
                                 <tr>
-                                    <th class="product-remove">&nbsp;</th>
-                                    <th class="product-thumbnail">&nbsp;</th>
-                                    <th class="product-name">Product</th>
-                                    <th class="product-price">Price</th>
+                                    <th class="product-name">No</th>
+                                    <th class="product-name">Address</th>
+                                    <th class="product-remove">&nbsp;</th>                                    
                                 </tr>
                             </thead>
-                            <tbody id="ItemCotent">
+                            <tbody id="account_content">
                             </tbody>
-                            <tr class="cart_item" style="display: none;" id="detailItemContent">
-                                <td class="product-remove" style="width: 5%;">
-                                    <a title="Remove this item" class="removeItem" href="javascript:;" data-id="" style="font-weight:bold;" >X</a>
-                                </td>
-                                <td class="product-thumbnail" style="width: 30%;">
-                                    <a href=""><img width="145" height="145" alt="poster_1_up" class="shop_thumbnail" src=""></a>
-                                </td>
-                                <td class="product-name" style="width: 30%;">
+                            <tr class="cart_item" style="display: none;" id="account_detail_content">
+
+
+                                <td class="product-name" style="width: 5%;">
                                 </td>
                                 <td class="product-price" style="width: 30%;">
                                     <span class="amount"></span>
                                 </td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="cart_totals" id="memberList" style="display: none;">
-                        <h2><i class="fa fa-reorder"></i> Memberlist</h2>
-                        <table cellspacing="0" class="shop_table cart">
-                            <thead>
-                                <tr>
-                                    <th class="product-remove">&nbsp;</th>
-                                    <th class="product-name">address</th>
-                                </tr>
-                            </thead>
-                            <tbody id="memberListContent">
-                            </tbody>
-                            <tr class="cart_item" style="display: none;" id="detailmemberListContent">
                                 <td class="product-remove" style="width: 5%;">
-                                    <button class="add_to_Blacklist_button fa fa-save" type="button" data-id="0"></button>
-                                </td>
-                                <td class="product-name" style="width: 95%;">
-                                </td>
+                                    <a title="Remove this item" class="remove_account" href="javascript:;" data-id="" style="font-weight:bold;" >X</a>
+                                </td>                                
                             </tr>
                         </table>
                     </div>
-                    <div class="cart_totals" id="blacklist" style="display: none;">
-                        <h2><i class="fa fa-reorder"></i> Blacklist</h2>
-                        <table cellspacing="0" class="shop_table cart">
-                            <thead>
-                                <tr>
-                                    <th class="product-remove">&nbsp;</th>
-                                    <th class="product-name">address</th>
-                                </tr>
-                            </thead>
-                            <tbody id="BlacklistContent">
-                            </tbody>
-                            <tr class="cart_item" style="display: none;" id="detailBlacklistContent">
-                                <td class="product-remove" style="width: 5%;">
-                                    <a title="Remove this item" class="removeBlacklist" href="javascript:;"
-                                        data-id="">×</a>
-                                </td>
-                                <td class="product-name" style="width: 95%;">
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+
 
 
                 </div>
