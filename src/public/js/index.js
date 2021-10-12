@@ -9,7 +9,7 @@ Index = {
     await Init.init();
     //   Mypage.address = address;
     Index.bindEvents();
-    Index.getAccountList();
+    await Index.getAccountList();
     //   Mypage.getPersonalFunction();
   },
 
@@ -82,7 +82,7 @@ Index = {
   },
 
   getAccountList: function () {
-    var itemrow = $('#account_content');
+    var itemrow = $('#account_list_content');
     var itemTemplate = $('#account_detail_content');
     var html = '';
     const param_data = { id: Index.id }
@@ -102,11 +102,28 @@ Index = {
           itemTemplate.find('.remove_account').attr('data-id', data[i].id_index);
           // itemTemplate.find('.removeItem').attr('data-index', itemInfos.id);
           itemTemplate.find('.product-name').text(i + 1);
-          itemTemplate.find('.product-price').text(data[i].address);
+          itemTemplate.find('.product-address').text(data[i].address);
 
+
+
+          // var balance = web3.eth.getBalance(data[i].address);
+          $.ajax({
+            url: 'http://localhost:3001/balance',
+            type: 'get',
+            data: { address: data[i].address },
+            async: false,
+            success: function (data) {
+              itemTemplate.find('.product-ether').text(web3.utils.fromWei(data.eth,'ether'));
+              console.log(data.eth);
+            },
+            error: function (request, status, error) {
+              alert("code = " + request.status + " message = " + request.responseText + " error = " + error); // 실패 시 처리
+            },
+
+          })  
+          console.log("aaa");
           html += '<tr class="cart_item">' + itemTemplate.html() + '</tr>';
-          console.log(data[i].id);
-          console.log(data[i].id_index);
+          // console.log(balance);
         }
         itemrow.html(html);
       },

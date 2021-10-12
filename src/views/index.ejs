@@ -57,13 +57,44 @@
                     </div>
 
                     <div class="cart_totals" id="account_list">
-                        <h2><i class="fa fa-reorder"></i> Account_list</h2>
+                        <h2><i class="fa fa-reorder"></i> 보유 계정 목록</h2>
                         <table cellspacing="0" class="shop_table cart">
                             <thead>
                                 <tr>
                                     <th class="product-name">No</th>
-                                    <th class="product-name">Address</th>
+                                    <th class="product-address">Address</th>
+                                    <th class="product-ether">Ether</th>
                                     <th class="product-remove">&nbsp;</th>                                    
+                                </tr>
+                            </thead>
+                            <tbody id="account_list_content">
+                            </tbody>
+                            <tr class="cart_item" style="display: none;" id="account_detail_content">
+
+
+                                <td class="product-name" style="width: 5%;">
+                                </td>
+                                <td class="product-address" style="width: 30%;">
+                                    <span class="amount"></span>
+                                </td>
+                                <td class="product-ether" style="width: 30%;">
+                                    <span class="ether"></span>
+                                </td>                                
+                                <td class="product-remove" style="width: 5%;">
+                                    <a title="Remove this item" class="remove_account" href="javascript:;" data-id="" style="font-weight:bold;" >X</a>
+                                </td>                                
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="cart_totals" id="account_info">
+                        <h2><i class="fa fa-reorder"></i> Ether 전송하기</h2>
+                        <table cellspacing="0" class="shop_table cart">
+                            <thead>
+                                <tr>
+                                    
+                                    <th class="product-name">Address</th>
+                                    <th class="product-balance"></th>                                    
                                 </tr>
                             </thead>
                             <tbody id="account_content">
@@ -81,8 +112,7 @@
                                 </td>                                
                             </tr>
                         </table>
-                    </div>
-
+                    </div>                    
 
 
                 </div>

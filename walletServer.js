@@ -1,6 +1,7 @@
 const express = require('express');
 const db_config = require(__dirname+'/src/public/js/database.js');
 const fs = require('fs');
+var cors = require('cors');
 const ethers = require('ethers');
 const keythereum = require('keythereum');
 const path = require('path');
@@ -8,7 +9,7 @@ const Web3 = require("web3");
 const Tx = require("ethereumjs-tx").Transaction;
 const { privateKeyToAddress } = require('keythereum');
 const { entropyToMnemonic, randomBytes, HDNode } = require('ethers/lib/utils');
-let web3 = new Web3(new Web3.providers.HttpProvider('https://ropsten.infura.io/v3/6d0db331b03946feb41e4bfad99423c4'))
+let web3 = new Web3(new Web3.providers.HttpProvider('http://192.168.154.19:22000'))
 const Wallet = require("ethereumjs-wallet").default;
 // const { json } = require('body-parser');
 
@@ -17,10 +18,11 @@ var bodyParser = require('body-parser');
 app.use(express.static(__dirname + '/src/public'));
 app.set('view engine','ejs');
 app.set('views','./src/views');
-app.use(bodyParser.urlencoded({ extended: false}))
+app.use(bodyParser.urlencoded({ extended: false}));
 app.set('port', process.env.PORT || 3001 );
 // app.use(express.static('front'))
 app.use(express.json());
+app.use(cors());
 var conn = db_config.init();
 
   
@@ -51,10 +53,11 @@ app.post('/create_wallet', (req, res) => {
     
 
     const account = Wallet.fromPrivateKey(pk);
-    console.log(account);
-
+    
+account.getPrivateKeyString()
     const address = account.getAddressString()
-
+    
+    console.log("private ",account.getPrivateKeyString())
     const keyStoreFilename = account.getV3Filename();
 
     console.log(keyStoreFilename);
@@ -192,8 +195,8 @@ app.post('/mnemonic', (req,res) => {
 app.get('/balance', async (req, res) => {
 
     let eth = 0;
-    console.log(req.body);
-    const address = req.body.address;
+    console.log(req.query.address);
+    const address = req.query.address;
 
     await web3.eth.getBalance( address , async (err,data) => {
         if (err) console.log(err);
