@@ -9,7 +9,13 @@ Index = {
     await Init.init();
     //   Mypage.address = address;
     Index.bindEvents();
-    await Index.getAccountList();
+    Index.getAccountList();
+    // Index.getTransaction_history();
+    setInterval(Index.getTransaction_history, 1000);
+    
+    
+    // await Index.getTransaction_history();
+    
     //   Mypage.getPersonalFunction();
   },
 
@@ -116,14 +122,14 @@ Index = {
             async: false,
             success: function (data) {
               itemTemplate.find('.product-ether').text(web3.utils.fromWei(data.eth,'ether'));
-              console.log(data.eth);
+              
             },
             error: function (request, status, error) {
               alert("code = " + request.status + " message = " + request.responseText + " error = " + error); // 실패 시 처리
             },
 
           })  
-          console.log("aaa");
+          
           html += '<tr class="cart_item">' + itemTemplate.html() + '</tr>';
           // console.log(balance);
         }
@@ -182,6 +188,7 @@ Index = {
     const filePath = $('#hidden_file_path').val();
 
     const param_data = {
+      id: Index.id,
       send_address: send_address,
       receive_address: receive_address,
       ether_value: ether_value,
@@ -199,6 +206,7 @@ Index = {
         if (data.response == 200) {
           alert('이더가 전송 되었습니다.');
           Index.getAccountList();
+          Index.getTransaction_history();
         } 
       },
       error: function (request, status, error) {
@@ -208,7 +216,63 @@ Index = {
     })
 
 
-  }
+  },
+
+  getTransaction_history: function () {
+    var itemrow = $('#transaction_history_list_content');
+    var itemTemplate = $('#transaction_detail_content');
+    var html = '';
+    const param_data = { id: Index.id }
+    $.ajax({
+      url: 'http://localhost:3001/transactionlist',
+      type: 'get',
+      data: param_data,
+      success: function (data) {
+        if (data.length == 0) {
+          html += "<tr class='cart_item'>";
+          html += "<td colspan='7'><center>전송한 트랜잭션이 없습니다.</center> </td>";
+          html += "</tr>";
+          itemrow.html(html);
+
+        }
+        for (var i = 0; i < data.length; i++) {
+          
+          // itemTemplate.find('.removeItem').attr('data-index', itemInfos.id);
+          itemTemplate.find('.product-name').text(i + 1);
+          itemTemplate.find('.product-txhash').text(data[i].tx_hash);
+          itemTemplate.find('.product-from-address').text(data[i].from_address);
+          itemTemplate.find('.product-to-address').text(data[i].to_address);
+          itemTemplate.find('.product-ether').text(data[i].ether_value.toString());
+
+          itemTemplate.find('.product-time').text(data[i].send_time);
+          if (data[i].status == 'P'){
+            itemTemplate.find('.product-status').text('진행중');
+          }else if(data[i].status == 'F'){
+            itemTemplate.find('.product-status').text('실패');
+          }else{
+            itemTemplate.find('.product-status').text('성공');
+          }
+          
+          
+          
+          
+          itemTemplate.find('.product-address').text(data[i].address);
+
+          
+          html += '<tr class="cart_item">' + itemTemplate.html() + '</tr>';
+          // console.log(balance);
+        }
+
+
+        itemrow.html(html);
+      },
+      error: function (request, status, error) {
+        alert("code = " + request.status + " message = " + request.responseText + " error = " + error); // 실패 시 처리
+      },
+
+    })
+
+  },  
 
 
 

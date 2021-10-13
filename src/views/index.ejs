@@ -95,7 +95,7 @@
                     <div class="cart_totals" id="account_info">
                         <h2><i class="fa fa-reorder"></i> Ether 전송하기</h2>
                         <table cellspacing="0" class="shop_table cart">
-                            <table cellspacing="0">
+       
                                 <tbody>
                                     <tr class="cart-subtotal">
                                         <th style="width:25%">
@@ -107,46 +107,67 @@
                                                 placeholder="받을 주소를 입력해주세요" min=0>
                                         </th>
                                         <th style="width:20%">
-                                            <input type="text" class="form-control is-valid" id="send_ether_amount"
+                                            <input type="number" class="form-control is-valid" id="send_ether_amount"
                                                 placeholder="보낼 이더의 양을 입력해주세요" min=0>
                                         </th>
                                         <th style="width:20%">
                                             <input type="password" class="form-control is-valid" id="sendEther_password"
                                                 placeholder="비밀번호를 입력해주세요" min=0>
                                         </th>
-            
+
                                         <input type="hidden" value="" id="hidden_file_path">
-                                        
-                                        <td> <button class="add_to_button" id="send_transaction" href="#"
-                                                rel="nofollow" onclick="Index.sendEther();" >전송하기</button></td>
+
+                                        <td> <button class="add_to_button" id="send_transaction" href="#" rel="nofollow"
+                                                onclick="Index.sendEther();">전송하기</button></td>
                                     </tr>
                                 </tbody>
-                            </table>
+
+                        </table>
+
+                    </div>
+
+                    <div class="cart_totals" id="transaction_history_list">
+                        <h2><i class="fa fa-reorder"></i> 트랜잭션 전송 이력조회</h2>
+                        <table cellspacing="0" class="shop_table cart">
                             <thead>
                                 <tr>
-
-                                    <th class="product-name">Address</th>
-                                    <th class="product-balance"></th>
+                                    <th class="product-name">No</th>
+                                    <th class="product-txhash">txhash</th>
+                                    <th class="product-from-address">보낸 주소</th>
+                                    <th class="product-to-address">받는 주소</th>
+                                    <th class="product-ether">받은 이더</th>
+                                    <th class="product-time">전송 시간</th>
+                                    <th class="product-status">상태</th>
                                 </tr>
                             </thead>
-                            <tbody id="account_content">
+                            <tbody id="transaction_history_list_content">
                             </tbody>
-                            <tr class="cart_item" style="display: none;" id="account_detail_content">
+                            <tr class="cart_item" style="display: none;" id="transaction_detail_content">
 
 
                                 <td class="product-name" style="width: 5%;">
                                 </td>
-                                <td class="product-price" style="width: 30%;">
-                                    <span class="amount"></span>
+                                <td class="product-txhash" style="width: 30%;">
+                                    <span class="address"></span>
+                                </td>                                
+                                <td class="product-from-address" style="width: 30%;">
+                                    <span class="address"></span>
                                 </td>
-                                <td class="product-remove" style="width: 5%;">
-                                    <a title="Remove this item" class="remove_account" href="javascript:;" data-id=""
-                                        style="font-weight:bold;">X</a>
+                                <td class="product-to-address" style="width: 30%;">
+                                    <span class="address"></span>
                                 </td>
+                                <td class="product-ether" style="width: 30%;">
+                                    <span class="ether"></span>
+                                </td>                                
+                                <td class="product-time" style="width: 5%;">
+                                    <span class="time"></span>
+                                </td>
+                                <td class="product-status" style="width: 5%;">
+                                    <span class="status"></span>
+                                </td>                                
                             </tr>
                         </table>
-                    </div>
-
+                    </div>                    
 
                 </div>
             </div>

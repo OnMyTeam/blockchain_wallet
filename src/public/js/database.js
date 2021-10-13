@@ -3,7 +3,7 @@ const conn_info = {
     host: 'localhost',
     port: '3306',
     user: 'root',
-    password: '5404243a',
+    password: 'Tmax1234!',
     database: 'walletdb'
 }
 module.exports = {

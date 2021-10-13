@@ -1,7 +1,6 @@
 const express = require('express');
 const db_config = require(__dirname+'/src/public/js/database.js');
 const fs = require('fs');
-var cors = require('cors');
 const ethers = require('ethers');
 const keythereum = require('keythereum');
 const path = require('path');
@@ -23,7 +22,6 @@ app.use(bodyParser.urlencoded({ extended: false}));
 app.set('port', process.env.PORT || 3001 );
 // app.use(express.static('front'))
 app.use(express.json());
-app.use(cors());
 var conn = db_config.init();
 
   
@@ -63,7 +61,7 @@ account.getPrivateKeyString()
 
     console.log(keyStoreFilename);
 
-    account.toV3('password').then(function (data) {
+    account.toV3(password).then(function (data) {
         console.log("성공"); 
         console.log(data);
         const jsonContent = JSON.stringify(data);
@@ -94,11 +92,11 @@ account.getPrivateKeyString()
                         
                         var sql = 'INSERT INTO user(id, id_index, pwd, address, file_path)'
                         sql += ' VALUES(?, ?, ?, ?, ?)';
-                        var params = ['sangiki82', id_index, password, address, file_path];
+                        var params = [id, id_index, password, address, file_path];
                         conn.query(sql, params, function(err) {
                             if(err) console.log('query is not excuted. insert fail...\n' + err);
                             else res.status(200).json({response: 200});
-                        });                            
+                        });
                     }
                     
                 });                
@@ -124,7 +122,7 @@ app.get('/accountlist', (req, res) => {
     sql += ' where id = \''+id+'\' order by id_index';
 
     conn.query(sql, function(err,result) {
-        if(err) console.log('query is not excuted. insert fail...\n' + err);
+        if(err) console.log('query is not excuted. select fail...\n' + err);
         else {
             
             res.json(result);
@@ -219,23 +217,17 @@ app.get('/getInfoforTx', (req, res) => {
 });
 
 app.post('/transaction', (req, res) => {
-
+    console.log(req.body);
+    const id = req.body.id;
     const send_account = req.body.send_address;
-    // console.log(send_account);
-    // const privateKey = req.body.privateKey.toString();
-    // console.log(privateKey);
     const receive_account = req.body.receive_address;
     const ether_value = req.body.ether_value;  // 0.1ether
     const password = req.body.password;  // password
     
     
-    // const send_account = '0x1ed14542bfde8d84d82dfa8b43ec12d2c510361c';
-    // const receive_account = "0x73c3f56026c760a92471234bb42e9ce9c6ea889b";
+
     const utcFile = req.body.filePath;
-    // const password = "aaa"
-    // const privateKey = '8a9214c740bb26055a37789dc3ff31b13794b990f29822e0733e60c3fd2dde89';
-    // let new_privateKey = new Buffer(privateKey, "hex");
-    // console.log(new_privateKey);
+
     // Asynchronous
     const keyObject = JSON.parse(fs.readFileSync(`${utcFile}`).toString());
     const privateKey = new Buffer.from(keythereum.recover(password, keyObject), "hex"); 
@@ -272,20 +264,56 @@ app.post('/transaction', (req, res) => {
         tx.sign(privateKey)
         const serializedTx = tx.serialize()
         const raw = "0x" + serializedTx.toString("hex")
-
+        var tx_hash;
         // send Tx
         web3.eth
             .sendSignedTransaction(raw) //(2)
             .once("transactionHash", hash => {
+                tx_hash = hash;
                 console.info("transactionHash", hash) // tx가 pending되는 즉시 etherscan에서 tx진행상태를 보여주는 링크를 제공해df.
+                var sql = 'INSERT INTO transaction_history(id, tx_hash, from_address, to_address, ether_value, status)'
+                sql += ' VALUES(?, ?, ?, ?, ?, ?)';
+                var params = [id, hash, send_account, receive_account, ether_value, 'P'];
+                conn.query(sql, params, function(err) {
+                    if(err) console.log('query is not excuted. insert fail...\n' + err);
+                    else res.status(200).json({response: 200});
+                });
+
             })
             .once("receipt", receipt => {
                 console.info("receipt", receipt) // 터미널에 receipt 출력
-                res.status(200).json({response: 200});
+                 
+                var sql = "update transaction_history set status='S'";
+                sql += ` where id ='${id}' and tx_hash='${tx_hash}'`;
+                console.log(sql);
+                conn.query(sql, function(err) {
+                    if(err) console.log('query is not excuted. insert fail...\n' + err);
+                    
+                });                
+                
             })
             .on("error", console.error)
     })
 });
+
+app.get('/transactionlist', (req, res) => {
+    const id = req.query.id;
+    console.log(id);
+    var sql = 'SELECT  id, tx_hash, from_address, to_address, ether_value, status, send_time FROM walletdb.transaction_history';
+    sql += ' where id = \''+id+'\' order by send_time desc';
+
+    conn.query(sql, function(err,result) {
+        console.log(result);
+        if(err) console.log('query is not excuted. select fail...\n' + err);
+        else {
+            
+            res.json(result);
+        }
+        
+    }); 
+    
+});
+
 
 app.get('/import/privatekey', (req, res) => {
 
