@@ -11,6 +11,7 @@ const { privateKeyToAddress } = require('keythereum');
 const { entropyToMnemonic, randomBytes, HDNode } = require('ethers/lib/utils');
 let web3 = new Web3(new Web3.providers.HttpProvider('http://192.168.154.19:22000'))
 const Wallet = require("ethereumjs-wallet").default;
+const Common = require("ethereumjs-common").default;
 // const { json } = require('body-parser');
 
 const app = express();
@@ -175,13 +176,6 @@ app.post('/remove', (req, res) => {
     
 });
 
-app.get('/users', (req, res) => {
-    console.log('b');
-
-    console.log(users);
-
-    res.send(users);
-});
 
 app.post('/mnemonic', (req,res) => {
 
@@ -206,35 +200,49 @@ app.get('/balance', async (req, res) => {
 
 });
 
+app.get('/getInfoforTx', (req, res) => {
+    const id = req.query.id;
+    const id_index = req.query.id_index;
+    console.log(id);
+    console.log(id_index);
+    var sql = 'SELECT  address, file_path FROM walletdb.user';
+    sql += ' where id = \''+id+'\' and id_index = '+id_index;
+
+    conn.query(sql, function(err,result) {
+        if(err) console.log('query is not excuted. insert fail...\n' + err);
+        else {
+            res.json(result);
+        }
+        
+    }); 
+    
+});
+
 app.post('/transaction', (req, res) => {
 
-    // const send_account = req.body.address;
+    const send_account = req.body.send_address;
     // console.log(send_account);
     // const privateKey = req.body.privateKey.toString();
     // console.log(privateKey);
-    // const receive_account = req.body.receive_account;
-    // const ether_value = req.body.ether_value;  // 0.1ether
-    // const password = req.body.password;  // password
+    const receive_account = req.body.receive_address;
+    const ether_value = req.body.ether_value;  // 0.1ether
+    const password = req.body.password;  // password
     
     
     // const send_account = '0x1ed14542bfde8d84d82dfa8b43ec12d2c510361c';
-    const receive_account = "0xEcb86Ec14185aE64Ae835EBFD72b50FC7fa085d2";
-    const utcFile = "UTC--2021-10-06T05-49-33.916Z--b5bb5716005a5648a9c19440b1baa02ef51c2c92";
-    const password = "password"
+    // const receive_account = "0x73c3f56026c760a92471234bb42e9ce9c6ea889b";
+    const utcFile = req.body.filePath;
+    // const password = "aaa"
     // const privateKey = '8a9214c740bb26055a37789dc3ff31b13794b990f29822e0733e60c3fd2dde89';
     // let new_privateKey = new Buffer(privateKey, "hex");
     // console.log(new_privateKey);
     // Asynchronous
-    const keyObject = JSON.parse(fs.readFileSync(`./keyfiles/${utcFile}`).toString());
+    const keyObject = JSON.parse(fs.readFileSync(`${utcFile}`).toString());
     const privateKey = new Buffer.from(keythereum.recover(password, keyObject), "hex"); 
-    const send_account = '0xb5bb5716005a5648a9c19440b1baa02ef51c2c92'
-    // console.log(privateKey.to)
-    
-    // let wallets = fs.readFileSync(`./keyfiles/${send_account}keystore.json`);
-    // let keyObject = wallet.keystore.deserialize(wallets);
+    // const send_account = '0xce22a009378fbd0136e2e5c9cee9b607121ba3de'
 
 
-    const value = web3.utils.toWei('0.1', 'ether')  // 0.1ether
+    const value = web3.utils.toWei(ether_value, 'ether')  // 0.1ether
     const hex_value = web3.utils.toHex(value)
 
     web3.eth.getTransactionCount(send_account, (err, txCount) => { // (1)
@@ -248,8 +256,18 @@ app.post('/transaction', (req, res) => {
         }
         console.log(txObject);
 
+        const cutsomCommon = Common.forCustomChain(
+            'mainnet',
+            {
+                name: 'my-network',
+                networkId: 10,
+                chainId: 10,
+            },
+            'istanbul',
+        )
+
         // create Tx
-        const tx = new Tx(txObject, { chain: 'ropsten', hardfork: 'petersburg' });
+        const tx = new Tx(txObject, { common: cutsomCommon });
         // signed Tx
         tx.sign(privateKey)
         const serializedTx = tx.serialize()
@@ -259,10 +277,11 @@ app.post('/transaction', (req, res) => {
         web3.eth
             .sendSignedTransaction(raw) //(2)
             .once("transactionHash", hash => {
-                console.info("transactionHash", "https://ropsten.etherscan.io/tx/" + hash) // tx가 pending되는 즉시 etherscan에서 tx진행상태를 보여주는 링크를 제공해df.
+                console.info("transactionHash", hash) // tx가 pending되는 즉시 etherscan에서 tx진행상태를 보여주는 링크를 제공해df.
             })
             .once("receipt", receipt => {
                 console.info("receipt", receipt) // 터미널에 receipt 출력
+                res.status(200).json({response: 200});
             })
             .on("error", console.error)
     })

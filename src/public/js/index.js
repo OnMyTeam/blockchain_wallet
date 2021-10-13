@@ -102,8 +102,10 @@ Index = {
           itemTemplate.find('.remove_account').attr('data-id', data[i].id_index);
           // itemTemplate.find('.removeItem').attr('data-index', itemInfos.id);
           itemTemplate.find('.product-name').text(i + 1);
+          itemTemplate.find('.product-address').attr('data-id', data[i].id_index);
+          itemTemplate.find('.product-address').attr("onclick", "Index.sendAddress('"+data[i].address+"','"+data[i].file_path+"')");
+          
           itemTemplate.find('.product-address').text(data[i].address);
-
 
 
           // var balance = web3.eth.getBalance(data[i].address);
@@ -125,6 +127,8 @@ Index = {
           html += '<tr class="cart_item">' + itemTemplate.html() + '</tr>';
           // console.log(balance);
         }
+
+
         itemrow.html(html);
       },
       error: function (request, status, error) {
@@ -136,6 +140,7 @@ Index = {
   },
 
   deleteAccount: function (event) {
+
     var itemcode = $(event.target).data('id');
 
     const param_data = { id: Index.id, id_index: itemcode }
@@ -156,6 +161,57 @@ Index = {
     })
 
   },
+
+  sendAddress: function (account, file_path) {
+
+    console.log(account);
+    console.log(file_path);
+    
+    $('#send_address').val(account);
+    $('#hidden_file_path').val(file_path);
+
+  },
+
+  sendEther: function () {
+
+    console.log('hello');
+    const send_address = $('#send_address').val();
+    const receive_address = $('#recieve_address').val();
+    const ether_value = $('#send_ether_amount').val();
+    const password = $('#sendEther_password').val();
+    const filePath = $('#hidden_file_path').val();
+
+    const param_data = {
+      send_address: send_address,
+      receive_address: receive_address,
+      ether_value: ether_value,
+      password: password,
+      filePath: filePath
+    }
+
+    console.log(param_data);
+
+    $.ajax({
+      url: 'http://localhost:3001/transaction',
+      type: 'post',
+      data: param_data,
+      success: function (data) {
+        if (data.response == 200) {
+          alert('이더가 전송 되었습니다.');
+          Index.getAccountList();
+        } 
+      },
+      error: function (request, status, error) {
+        alert("code = " + request.status + " message = " + request.responseText + " error = " + error); // 실패 시 처리
+      },
+
+    })
+
+
+  }
+
+
+
 
 
 
